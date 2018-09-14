@@ -151,9 +151,12 @@ export function getModernOffsetsFromPoints(
  * @param {object} offsets
  */
 export function setOffsets(node, offsets) {
-  const doc = node.ownerDocument || document;
-  const win = doc ? doc.defaultView : window;
-  const selection = win.getSelection();
+  const {ownerDocument} = node;
+  const win = (ownerDocument && ownerDocument.defaultView) || window;
+  const selection = win.getSelection && win.getSelection();
+  if (!selection) {
+    return;
+  }
   const length = node.textContent.length;
   let start = Math.min(offsets.start, length);
   let end = offsets.end === undefined ? start : Math.min(offsets.end, length);
@@ -179,7 +182,7 @@ export function setOffsets(node, offsets) {
     ) {
       return;
     }
-    const range = doc.createRange();
+    const range = ownerDocument.createRange();
     range.setStart(startMarker.node, startMarker.offset);
     selection.removeAllRanges();
 
